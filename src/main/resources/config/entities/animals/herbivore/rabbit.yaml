@@ -1,0 +1,21 @@
+name: Rabbit
+weightInKilograms: 2
+maxAnimalsPerCell: 150
+maxMovementSpeedPerTurn: 2
+foodRequiredForFullSatiation: 0.45
+predationProbability:
+  Wolf: 0
+  Snake: 0
+  Fox: 0
+  Bear: 0
+  Eagle: 0
+  Horse: 0
+  Deer: 0
+  Mouse: 0
+  Goat: 0
+  Sheep: 0
+  Boar: 0
+  Buffalo: 0
+  Duck: 0
+  Caterpillar: 0
+  Plants: 100

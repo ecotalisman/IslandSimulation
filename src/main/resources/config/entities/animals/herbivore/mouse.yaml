@@ -1,0 +1,23 @@
+name: Mouse
+weightInKilograms: 0.05
+maxAnimalsPerCell: 500
+maxMovementSpeedPerTurn: 1
+foodRequiredForFullSatiation: 0.01
+predationProbability:
+  Wolf: 0
+  Snake: 0
+  Fox: 0
+  Bear: 0
+  Eagle: 0
+  Horse: 0
+  Deer: 0
+  Rabbit: 0
+  Goat: 0
+  Sheep: 0
+  Boar: 0
+  Buffalo: 0
+  Duck: 0
+  Caterpillar: 90
+  Plants: 100
+
+
