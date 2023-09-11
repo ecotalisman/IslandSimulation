@@ -1,4 +1,5 @@
 name: Eagle
+icon: 🦅
 weightInKilograms: 6
 maxAnimalsPerCell: 20
 maxMovementSpeedPerTurn: 3

@@ -1,4 +1,5 @@
 name: Caterpillar
+icon: 🐛
 weightInKilograms: 0.01
 maxAnimalsPerCell: 1000
 maxMovementSpeedPerTurn: 0

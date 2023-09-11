@@ -1,4 +1,5 @@
 name: Boar
+icon: 🐗
 weightInKilograms: 400
 maxAnimalsPerCell: 50
 maxMovementSpeedPerTurn: 2

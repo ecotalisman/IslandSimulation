@@ -1,4 +1,5 @@
 name: Wolf
+icon: 🐺
 weightInKilograms: 50
 maxAnimalsPerCell: 30
 maxMovementSpeedPerTurn: 3

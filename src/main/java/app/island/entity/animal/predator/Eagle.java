@@ -1,7 +1,34 @@
 package app.island.entity.animal.predator;
 
 import app.island.annotations.Config;
+import app.island.entity.Organism;
+import app.island.entity.animal.Animal;
+import app.island.entity.animal.herbivore.*;
+
+import java.util.Map;
 
 @Config(fileName = "config\\entities\\animals\\predator\\eagle.yaml")
 public class Eagle extends Predator {
+    private Map<Class<? extends Organism>, Integer> animalsThatCanEat;
+    public Eagle() {
+        this.setName("Eagle");
+        this.setIcon("\uD83E\uDD85");
+        this.setWeightInKilograms(6d);
+        this.setMaxAnimalsPerCell(20);
+        this.setMaxMovementSpeedPerTurn(3);
+        this.setFoodRequiredForFullSatiation(1d);
+
+        animalsThatCanEat = Map.of(
+                Fox.class, 10,
+                Rabbit.class, 90,
+                Mouse.class, 90,
+                Duck.class, 80);
+    }
+    @Override
+    public void eat(Animal animal) {
+        Integer value = animalsThatCanEat.getOrDefault(animal.getClass(), -1);
+        if (value == -1) {
+            System.out.println("Class not found");
+        }
+    }
 }

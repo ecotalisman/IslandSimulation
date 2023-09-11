@@ -1,4 +1,5 @@
 name: Bear
+icon: 🐻
 weightInKilograms: 500
 maxAnimalsPerCell: 5
 maxMovementSpeedPerTurn: 2

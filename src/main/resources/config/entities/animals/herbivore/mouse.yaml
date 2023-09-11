@@ -1,4 +1,5 @@
 name: Mouse
+icon: 🐁
 weightInKilograms: 0.05
 maxAnimalsPerCell: 500
 maxMovementSpeedPerTurn: 1

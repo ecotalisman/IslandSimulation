@@ -1,4 +1,5 @@
 name: Goat
+icon: 🐐
 weightInKilograms: 60
 maxAnimalsPerCell: 140
 maxMovementSpeedPerTurn: 3

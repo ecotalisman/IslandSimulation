@@ -1,4 +1,5 @@
 name: Buffalo
+icon: 🐃
 weightInKilograms: 700
 maxAnimalsPerCell: 10
 maxMovementSpeedPerTurn: 3

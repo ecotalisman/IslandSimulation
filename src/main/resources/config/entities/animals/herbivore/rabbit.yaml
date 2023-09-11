@@ -1,4 +1,5 @@
 name: Rabbit
+icon: 🐇
 weightInKilograms: 2
 maxAnimalsPerCell: 150
 maxMovementSpeedPerTurn: 2

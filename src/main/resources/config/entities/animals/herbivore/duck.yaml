@@ -1,4 +1,5 @@
 name: Duck
+icon: 🦆
 weightInKilograms: 1
 maxAnimalsPerCell: 200
 maxMovementSpeedPerTurn: 4

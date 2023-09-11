@@ -1,4 +1,5 @@
 name: Sheep
+icon: 🐑
 weightInKilograms: 70
 maxAnimalsPerCell: 140
 maxMovementSpeedPerTurn: 3

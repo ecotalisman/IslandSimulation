@@ -1,4 +1,5 @@
 name: Horse
+icon: 🐎
 weightInKilograms: 400
 maxAnimalsPerCell: 20
 maxMovementSpeedPerTurn: 4

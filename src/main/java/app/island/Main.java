@@ -1,24 +1,15 @@
 package app.island;
 
-import app.island.entity.animal.herbivore.Deer;
-import app.island.entity.animal.herbivore.Horse;
-import app.island.entity.animal.predator.Wolf;
-import app.island.entity.plants.Grass;
-import app.island.yamlreader.YamlReader;
+import app.island.entity.animal.predator.Bear;
+import app.island.entity.plants.Tree;
 
 public class Main {
     public static void main(String[] args) {
 
-        YamlReader yamlReader = YamlReader.getInstance();
+        Bear bear = new Bear();
+        Tree tree = new Tree();
+        System.out.println(bear);
+        System.out.println(tree);
 
-        Deer deer = yamlReader.loadConfiguredObject(Deer.class);
-        Horse horse = yamlReader.loadConfiguredObject(Horse.class);
-        Wolf wolf = yamlReader.loadConfiguredObject(Wolf.class);
-        Grass grass = yamlReader.loadConfiguredObject(Grass.class);
-
-        System.out.println(deer);
-        System.out.println(horse);
-        System.out.println(wolf);
-        System.out.println(grass);
     }
 }

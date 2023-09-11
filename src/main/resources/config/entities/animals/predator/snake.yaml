@@ -1,4 +1,5 @@
 name: Snake
+icon: 🐍
 weightInKilograms: 15
 maxAnimalsPerCell: 30
 maxMovementSpeedPerTurn: 1

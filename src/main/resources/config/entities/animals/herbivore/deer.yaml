@@ -1,4 +1,5 @@
 name: Deer
+icon: 🦌
 weightInKilograms: 300
 maxAnimalsPerCell: 20
 maxMovementSpeedPerTurn: 4

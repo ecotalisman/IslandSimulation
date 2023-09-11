@@ -1,4 +1,5 @@
 name: Fox
+icon: 🦊
 weightInKilograms: 8
 maxAnimalsPerCell: 30
 maxMovementSpeedPerTurn: 2
