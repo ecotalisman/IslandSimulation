@@ -9,7 +9,6 @@ import java.util.Map;
 
 @Config(fileName = "config\\entities\\animals\\herbivore\\horse.yaml")
 public class Horse extends Herbivore {
-    private Map<Class<? extends Organism>, Integer> animalsThatCanEat;
     public Horse() {
         this.setName("Horse");
         this.setIcon("\uD83D\uDC0E");
@@ -18,12 +17,12 @@ public class Horse extends Herbivore {
         this.setMaxMovementSpeedPerTurn(4);
         this.setFoodRequiredForFullSatiation(60d);
 
-        animalsThatCanEat = Map.of(
-                Plants.class, 100);
+        this.setPredationProbability(Map.of(
+                Plants.class, 100));
     }
     @Override
     public void eat(Animal animal) {
-        Integer value = animalsThatCanEat.getOrDefault(animal.getClass(), -1);
+        Integer value = getPredationProbability().getOrDefault(animal.getClass(), -1);
         if (value == -1) {
             System.out.println("Class not found");
         }

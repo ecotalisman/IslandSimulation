@@ -63,6 +63,7 @@ public abstract class Plants extends Organism implements Serializable {
                 ", icon='" + icon + '\'' +
                 ", weightInKilograms=" + weightInKilograms +
                 ", maxPlantsPerCell=" + maxPlantsPerCell +
-                '}';
+                ", isAlive=" + isAlive +
+                "} " + super.toString();
     }
 }

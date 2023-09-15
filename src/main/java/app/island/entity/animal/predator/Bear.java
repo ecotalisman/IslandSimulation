@@ -9,7 +9,6 @@ import java.util.Map;
 
 @Config(fileName = "config\\entities\\animals\\predator\\bear.yaml")
 public class Bear extends Predator {
-    private Map<Class<? extends Organism>, Integer> animalsThatCanEat;
     public Bear() {
         this.setName("Bear");
         this.setIcon("🐻");
@@ -18,7 +17,7 @@ public class Bear extends Predator {
         this.setMaxMovementSpeedPerTurn(2);
         this.setFoodRequiredForFullSatiation(80d);
 
-        animalsThatCanEat = Map.of(
+        this.setPredationProbability(Map.of(
                 Snake.class, 80,
                 Horse.class, 40,
                 Deer.class, 80,
@@ -28,11 +27,11 @@ public class Bear extends Predator {
                 Sheep.class, 70,
                 Boar.class, 50,
                 Buffalo.class, 20,
-                Duck.class, 10);
+                Duck.class, 10));
     }
     @Override
     public void eat(Animal animal) {
-        Integer value = animalsThatCanEat.getOrDefault(animal.getClass(), -1);
+        Integer value = getPredationProbability().getOrDefault(animal.getClass(), -1);
         if (value == -1) {
             System.out.println("Class not found");
         }

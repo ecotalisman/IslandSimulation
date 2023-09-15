@@ -14,6 +14,7 @@ public abstract class Animal extends Organism implements Serializable {
         private int maxAnimalsPerCell;
         private int maxMovementSpeedPerTurn;
         private double foodRequiredForFullSatiation;
+        private Map<Class<? extends Organism>, Integer> predationProbability;
         private boolean isAlive = true;
 
         public void eat(Animal animal) {
@@ -76,6 +77,14 @@ public abstract class Animal extends Organism implements Serializable {
                 this.foodRequiredForFullSatiation = foodRequiredForFullSatiation;
         }
 
+        public Map<Class<? extends Organism>, Integer> getPredationProbability() {
+                return predationProbability;
+        }
+
+        public void setPredationProbability(Map<Class<? extends Organism>, Integer> predationProbability) {
+                this.predationProbability = predationProbability;
+        }
+
         public boolean isAlive() {
                 return isAlive;
         }
@@ -94,6 +103,7 @@ public abstract class Animal extends Organism implements Serializable {
                         ", maxAnimalsPerCell=" + maxAnimalsPerCell +
                         ", maxMovementSpeedPerTurn=" + maxMovementSpeedPerTurn +
                         ", foodRequiredForFullSatiation=" + foodRequiredForFullSatiation +
+                        ", predationProbability=" + predationProbability +
                         ", isAlive=" + isAlive +
                         "} " + super.toString();
         }
