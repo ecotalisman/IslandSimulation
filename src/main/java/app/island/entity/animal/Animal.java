@@ -3,7 +3,6 @@ package app.island.entity.animal;
 import app.island.entity.Organism;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 public abstract class Animal extends Organism implements Serializable {
@@ -17,7 +16,7 @@ public abstract class Animal extends Organism implements Serializable {
         private Map<Class<? extends Organism>, Integer> predationProbability;
         private boolean isAlive = true;
 
-        public void eat(Animal animal) {
+        public void eat(Organism organism) {
 
         }
 
