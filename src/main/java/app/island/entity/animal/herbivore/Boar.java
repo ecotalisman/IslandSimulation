@@ -4,14 +4,24 @@ import app.island.Menu.Cell;
 import app.island.Menu.Menu;
 import app.island.annotations.Config;
 import app.island.entity.Organism;
+import app.island.entity.animal.Animal;
 import app.island.entity.plants.Plants;
+import app.island.exceptions.IslandException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static app.island.Constants.Constants.*;
+
 @Config(fileName = "config\\entities\\animals\\herbivore\\boar.yaml")
 public class Boar extends Herbivore implements Runnable {
+
     public Boar() {
+        super(400d, 50, 2,50d,
+                Map.of( Mouse.class, 50,
+                        Caterpillar.class, 90,
+                        Plants.class, 100));
         this.setName("Boar");
         this.setIcon("\uD83D\uDC17");
         this.setWeightInKilograms(400d);
@@ -24,35 +34,21 @@ public class Boar extends Herbivore implements Runnable {
                 Caterpillar.class, 90,
                 Plants.class, 100));
     }
-    @Override
-    public void eat(Organism organism) {
-        Integer value = getPredationProbability().getOrDefault(organism.getClass(), -1);
-        if (value == -1) {
-            System.out.println("Class not found");
-        }
-    }
 
     @Override
-    public void chooseDirection() {
-        Cell[][] field = Menu.field;
-        int x = Menu.random.nextInt();
-        int y = Menu.random.nextInt();
-        validateCoordinates(x, y);
-
-        Cell cell = field[x][y];
-        List<Organism> organismList = cell.getCell();
-
-        eat(organismList.get(0));
-
-    }
-
-    private void validateCoordinates(int x, int y) {
+    protected Herbivore createNewHerbivore() {
+        return new Boar();
     }
 
     @Override
     public void run() {
         while (isAlive()) {
             chooseDirection();
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                throw new IslandException("Error while waiting", e);
+            }
         }
     }
 }

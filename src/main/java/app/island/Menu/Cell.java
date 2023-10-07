@@ -16,7 +16,7 @@ public class Cell {
         this.cell = cell;
     }
 
-    public void addAnimal(Organism organism) {
+    public void addOrganism(Organism organism) {
         cell.add(organism);
     }
 }

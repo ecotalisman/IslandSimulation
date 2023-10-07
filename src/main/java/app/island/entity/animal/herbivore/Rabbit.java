@@ -3,12 +3,15 @@ package app.island.entity.animal.herbivore;
 import app.island.annotations.Config;
 import app.island.entity.Organism;
 import app.island.entity.plants.Plants;
+import app.island.exceptions.IslandException;
 
 import java.util.Map;
 
 @Config(fileName = "config\\entities\\animals\\herbivore\\rabbit.yaml")
-public class Rabbit extends Herbivore {
+public class Rabbit extends Herbivore implements Runnable {
     public Rabbit() {
+        super(2d, 150, 2, 0.45d,
+                Map.of(Plants.class, 100));
         this.setName("Rabbit");
         this.setIcon("\uD83D\uDC07");
         this.setWeightInKilograms(2d);
@@ -19,11 +22,21 @@ public class Rabbit extends Herbivore {
         this.setPredationProbability(Map.of(
                 Plants.class, 100));
     }
+
     @Override
-    public void eat(Organism organism) {
-        Integer value = getPredationProbability().getOrDefault(organism.getClass(), -1);
-        if (value == -1) {
-            System.out.println("Class not found");
+    protected Herbivore createNewHerbivore() {
+        return new Rabbit();
+    }
+
+    @Override
+    public void run() {
+        while (isAlive()) {
+            chooseDirection();
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                throw new IslandException("Error while waiting", e);
+            }
         }
     }
 }

@@ -91,19 +91,4 @@ public abstract class Animal extends Organism implements Serializable {
         public void setAlive(boolean alive) {
                 isAlive = alive;
         }
-
-
-        @Override
-        public String toString() {
-                return "Animal{" +
-                        "name='" + name + '\'' +
-                        ", icon='" + icon + '\'' +
-                        ", weightInKilograms=" + weightInKilograms +
-                        ", maxAnimalsPerCell=" + maxAnimalsPerCell +
-                        ", maxMovementSpeedPerTurn=" + maxMovementSpeedPerTurn +
-                        ", foodRequiredForFullSatiation=" + foodRequiredForFullSatiation +
-                        ", predationProbability=" + predationProbability +
-                        ", isAlive=" + isAlive +
-                        "} " + super.toString();
-        }
 }
