@@ -13,75 +13,83 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static app.island.Constants.Constants.*;
 
-public class Menu {
-    public static Cell[][] field = new Cell[NUM_ROWS][NUM_COLUMNS];
+public class IslandSimulation {
+    private static Cell[][] field = new Cell[NUM_ROWS][NUM_COLUMNS];
     public static volatile Random random = new Random();
     public static Statistics statistics = new Statistics();
-    private final Object lock = new Object();
-    private boolean allPredatorsDead = false;
+    private final static Object lock = new Object();
+    private boolean allHerbivoreDead = false;
 
-    public Menu() {
+    public IslandSimulation() {
         initAllCells();
     }
 
     public void run() {
         while (true) {
-
             statisticsMap();
-            ExecutorService executorService = Executors.newFixedThreadPool(statistics.getStatusMap().size());
             boolean anyAlive = false;
             Map<Class<? extends Organism>, List<Organism>> groupedOrganisms = new HashMap<>();
+            synchronized (statistics) {
+                for (Map.Entry<Organism, Statistics.AnimalStatus> entry : statistics.getStatusMap().entrySet()) {
+                    Organism organism = entry.getKey();
+                    Statistics.AnimalStatus status = entry.getValue();
 
-            for (Map.Entry<Organism, Statistics.AnimalStatus> entry : statistics.getStatusMap().entrySet()) {
-                Organism organism = entry.getKey();
-                Statistics.AnimalStatus status = entry.getValue();
+                    if (status.isAlive) {
+                        anyAlive = true;
+                        Class<? extends Organism> organismClass = organism.getClass();
+                        List<Organism> organismList = groupedOrganisms.computeIfAbsent(organismClass, k -> new ArrayList<>());
+                        organismList.add(organism);
 
-                if (status.isAlive) {
-                    anyAlive = true;
-                    Class<? extends Organism> organismClass = organism.getClass();
-                    List<Organism> organismList = groupedOrganisms.computeIfAbsent(organismClass, k -> new ArrayList<>());
-                    organismList.add(organism);
-
-                    synchronized (lock) {
-                        if (organism instanceof Predator) {
-                            allPredatorsDead = false;
+                        synchronized (lock) {
+                            if (organism instanceof Herbivore) {
+                                allHerbivoreDead = false;
+                            }
                         }
                     }
                 }
             }
+            ExecutorService executorService = Executors.newFixedThreadPool(groupedOrganisms.size());
 
-            if (!anyAlive || allPredatorsDead) {
+            if (!anyAlive || allHerbivoreDead) {
                 executorService.shutdownNow();
                 break;
             }
 
-            for (Map.Entry<Class<? extends Organism>, List<Organism>> entry : groupedOrganisms.entrySet()) {
-                Class<? extends Organism> organismClass = entry.getKey();
-                List<Organism> organismList = entry.getValue();
-                Organism sampleOrganism = organismList.get(0);
+            synchronized (lock) {
+                for (Map.Entry<Class<? extends Organism>, List<Organism>> entry : groupedOrganisms.entrySet()) {
+                    Class<? extends Organism> organismClass = entry.getKey();
+                    List<Organism> organismList = entry.getValue();
+                    Organism sampleOrganism = organismList.get(0);
 
-                if (sampleOrganism instanceof Animal && ((Animal) sampleOrganism).isAlive()) {
-                    Animal animal = (Animal) sampleOrganism;
-                    Thread animalThread = new Thread((Runnable) animal);
-                    animalThread.start();
+                    if (sampleOrganism instanceof Animal && ((Animal) sampleOrganism).isAlive()) {
+                        executorService.submit((Runnable) sampleOrganism);
 
-                    System.out.println("Animal: " + ((Animal) sampleOrganism).getName() + " " + ((Animal) sampleOrganism).getIcon());
-                    System.out.println("Is Alive: " + organismList.size());
-                    System.out.println("Weight in Kilograms: " + ((Animal) sampleOrganism).getWeightInKilograms());
-                    System.out.println("--------------------------");
-                } else if (sampleOrganism instanceof Plants && ((Plants) sampleOrganism).isAlive()) {
-                    Plants plants = (Plants) sampleOrganism;
-                    Thread animalThread = new Thread((Runnable) plants);
-                    animalThread.start();
+                        System.out.println("Animal: " + ((Animal) sampleOrganism).getName() + " " + ((Animal) sampleOrganism).getIcon());
+                        System.out.println("Is Alive: " + organismList.size());
+                        System.out.println("Weight in Kilograms: " + ((Animal) sampleOrganism).getWeightInKilograms());
+                        System.out.println("--------------------------");
+                    } else if (sampleOrganism instanceof Plants && ((Plants) sampleOrganism).isAlive()) {
+                        executorService.submit((Runnable) sampleOrganism);
 
-                    System.out.println("Plants: " + ((Plants) sampleOrganism).getName() + ((Plants) sampleOrganism).getIcon());
-                    System.out.println("Is Alive: " + organismList.size());
-                    System.out.println("Weight in Kilograms: " + ((Plants) sampleOrganism).getWeightInKilograms());
-                    System.out.println("--------------------------");
+                        System.out.println("Plants: " + ((Plants) sampleOrganism).getName() + ((Plants) sampleOrganism).getIcon());
+                        System.out.println("Is Alive: " + organismList.size());
+                        System.out.println("Weight in Kilograms: " + ((Plants) sampleOrganism).getWeightInKilograms());
+                        System.out.println("--------------------------");
+                    }
                 }
+            }
+            executorService.shutdown();
+            try {
+                if (!executorService.awaitTermination(1, TimeUnit.SECONDS)) {
+                    executorService.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executorService.shutdownNow();
+                Thread.currentThread().interrupt();
             }
         }
     }
@@ -105,7 +113,7 @@ public class Menu {
                         int numAnimals = 0;
                         try {
                             Animal animal = animalClass.getDeclaredConstructor().newInstance();
-                            numAnimals = Menu.random.nextInt(animal.getMaxAnimalsPerCell() + 1);
+                            numAnimals = IslandSimulation.random.nextInt(animal.getMaxAnimalsPerCell() + 1) / REDUCTION_FACTOR;
                         } catch (InstantiationException e) {
                             throw new IslandException("Failed to create an instance of Animal", e);
                         }
@@ -122,7 +130,7 @@ public class Menu {
                         int numPlants = 0;
                         try {
                             Plants plant = plantClass.getDeclaredConstructor().newInstance();
-                            numPlants = Menu.random.nextInt(plant.getMaxPlantsPerCell() + 1);
+                            numPlants = IslandSimulation.random.nextInt(plant.getMaxPlantsPerCell() + 1) / REDUCTION_FACTOR_PLANTS;
                         } catch (InstantiationException e) {
                             throw new IslandException("Failed to create an instance of Plants", e);
                         }
@@ -143,12 +151,16 @@ public class Menu {
     }
 
     private synchronized void statisticsMap() {
+        boolean anyHerbivoreAlive = false;
         for (int i = 0; i < NUM_ROWS; i++) {
             for (int j = 0; j < NUM_COLUMNS; j++) {
                 List<Organism> cell = field[i][j].getCell();
                 List<Organism> copyCell = new ArrayList<>(cell);
 
                 for (Organism currentOrganism : copyCell) {
+                    if (currentOrganism == null) {
+                        continue;
+                    }
                     Statistics.AnimalStatus status = statistics.new AnimalStatus();
                     if (currentOrganism instanceof Animal) {
                         status.isAlive = ((Animal) currentOrganism).isAlive();
@@ -158,8 +170,22 @@ public class Menu {
                         status.weightInKilograms = ((Plants) currentOrganism).getWeightInKilograms();
                     }
                     statistics.updateStatus(currentOrganism, status);
+                    if (currentOrganism instanceof Herbivore && ((Herbivore) currentOrganism).isAlive()) {
+                        anyHerbivoreAlive = true;
+                    }
                 }
             }
         }
+        synchronized (lock) {
+            allHerbivoreDead = !anyHerbivoreAlive;
+        }
+    }
+
+    public static synchronized Cell getCellAt(int x, int y) {
+        return field[x][y];
+    }
+
+    public static synchronized void setCellAt(int x, int y, Cell cell) {
+        field[x][y] = cell;
     }
 }

@@ -6,7 +6,7 @@ import app.island.exceptions.IslandException;
 @Config(fileName = "config\\entities\\plants\\tree.yaml")
 public class Tree extends Plants implements Runnable {
     public Tree() {
-        super(100);
+        super(100d, 100);
         this.setName("Tree");
         this.setIcon("\uD83C\uDF33");
         this.setWeightInKilograms(100d);

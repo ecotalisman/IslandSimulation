@@ -1,20 +1,18 @@
 package app.island.entity.animal.herbivore;
 
 import app.island.Menu.Cell;
-import app.island.Menu.Menu;
+import app.island.Menu.IslandSimulation;
 import app.island.entity.Organism;
 import app.island.entity.animal.Animal;
 import app.island.entity.plants.Plants;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import static app.island.Constants.Constants.*;
 
 public abstract class Herbivore extends Animal {
-    private final double currentWeight;
-    private List<Organism> organismToAdd = new ArrayList<>();
+    private final double initialWeight;
     private final Object lock = new Object();
 
     public Herbivore(double weightInKilograms, int maxAnimalsPerCell, int maxMovementSpeedPerTurn, double foodRequiredForFullSatiation,
@@ -24,14 +22,19 @@ public abstract class Herbivore extends Animal {
         setMaxMovementSpeedPerTurn(maxMovementSpeedPerTurn);
         setFoodRequiredForFullSatiation(foodRequiredForFullSatiation);
         setPredationProbability(predationProbability);
-        this.currentWeight = weightInKilograms;
+        this.initialWeight = weightInKilograms;
     }
 
     @Override
     public void eat(Organism organism) {
         synchronized (lock) {
-            if (organism instanceof Animal && !((Animal) organism).isAlive()) {
-                return;
+            double organismWeight = 0;
+            if (organism instanceof Plants) {
+                if (!((Plants) organism).isAlive()) return;
+                organismWeight = ((Plants) organism).getWeightInKilograms();
+            } else if (organism instanceof Animal) {
+                if (!((Animal) organism).isAlive()) return;
+                organismWeight = ((Animal) organism).getWeightInKilograms();
             }
 
             Integer value = getPredationProbability().getOrDefault(organism.getClass(), -1);
@@ -39,14 +42,14 @@ public abstract class Herbivore extends Animal {
                 return;
             }
 
-            int chance = Menu.random.nextInt(101);
+            int chance = IslandSimulation.random.nextInt(101);
             if (value >= chance) {
-                double foodEaten = currentWeight - getWeightInKilograms();
-                if (((Animal) organism).isAlive()) {
-                    setWeightBasedOnFoodEaten(foodEaten, ((Animal) organism).getWeightInKilograms());
+                double foodEaten = Math.min(Math.min(getWeightInKilograms(), getFoodRequiredForFullSatiation()), organismWeight);
+                if (organism instanceof Animal) {
+                    setWeightBasedOnFoodEaten(foodEaten);
                     ((Animal) organism).setAlive(false);
-                } else if (((Plants) organism).isAlive()) {
-                    setWeightBasedOnFoodEaten(foodEaten, ((Plants) organism).getWeightInKilograms());
+                } else if (organism instanceof Plants) {
+                    setWeightBasedOnFoodEaten(foodEaten);
                     if (((Plants) organism).getWeightInKilograms() <= 0) {
                         ((Plants) organism).setAlive(false);
                     }
@@ -55,121 +58,108 @@ public abstract class Herbivore extends Animal {
         }
     }
 
+    private void setWeightBasedOnFoodEaten(double foodEaten) {
+        double newWeight = getWeightInKilograms() + foodEaten;
+        if (newWeight > initialWeight) {
+            setWeightInKilograms(initialWeight);
+        } else {
+            setWeightInKilograms(newWeight);
+        }
+    }
+
+
     @Override
     public void chooseDirection() {
         synchronized (lock) {
-            Cell[][] field = Menu.field;
-            int[] location = findLocation(field);
-
-            if (location != null) {
-                int maxX = location[0] + getMaxMovementSpeedPerTurn();
-                int maxY = location[1] + getMaxMovementSpeedPerTurn();
-
-                if (maxX <= 0 || maxY <= 0) {
-                    return;
-                }
-
-                int newX = location[0] + Menu.random.nextInt(maxX);
-                int newY = location[1] + Menu.random.nextInt(maxY);
-
-                if (isValidCoordinates(newX, newY)) {
-                    synchronized (field) {
-                        moveAndEat(newX, newY, field);
-                    }
-                } else {
-                    chooseDirection();
-                }
+            int[] newLocation = calculateNewLocation();
+            if (newLocation != null) {
+                moveAndEat(newLocation[0], newLocation[1]);
             }
         }
+    }
+    private int[] calculateNewLocation() {
+        int[] location = findLocationOf(this);
+        if (location == null) {
+            return null;
+        }
+        int maxShift = getMaxMovementSpeedPerTurn();
+
+        int shiftX = IslandSimulation.random.nextInt(2 * maxShift + 1) - maxShift;
+        int shiftY = IslandSimulation.random.nextInt(2 * maxShift + 1) - maxShift;
+
+        int newX = location[0] + shiftX;
+        int newY = location[1] + shiftY;
+
+        if (isValidCoordinates(newX, newY)) {
+            return new int[]{newX, newY};
+        }
+        return null;
     }
 
     private boolean isValidCoordinates(int x, int y) {
         return x >= 0 && x < NUM_ROWS && y >= 0 && y < NUM_COLUMNS;
     }
 
-    private int[] findLocation(Cell[][] field) {
-        synchronized (lock) {
-            for (int x = 0; x < NUM_ROWS; x++) {
-                for (int y = 0; y < NUM_COLUMNS; y++) {
-                    List<Organism> organismList = field[x][y].getCell();
-                    synchronized (organismList) {
-                        for (Organism organism : organismList) {
-                            if (organism.getClass().equals(this.getClass())) {
-                                return new int[]{x, y};
-                            }
-                        }
-                    }
+    private int[] findLocationOf(Organism target) {
+        for (int x = 0; x < NUM_ROWS; x++) {
+            for (int y = 0; y < NUM_COLUMNS; y++) {
+                List<Organism> organismList = IslandSimulation.getCellAt(x, y).getCell();
+                if (organismList.contains(target)) {
+                    return new int[]{x, y};
                 }
             }
-            return null;
         }
+        return null;
     }
 
-    private void moveAndEat(int newX, int newY, Cell[][] field) {
-        Cell newCell = field[newX][newY];
-        synchronized (lock) {
-            setOrganismToAdd(newCell.getCell());
+    private void moveAndEat(int newX, int newY) {
+        int[] currentLocation = findLocationOf(this);
+        Cell currentCell = IslandSimulation.getCellAt(currentLocation[0], currentLocation[1]);
+        Cell newCell = IslandSimulation.getCellAt(newX, newY);
 
-            if (getOrganismToAdd().isEmpty()) {
-                setWeightInKilograms(getWeightInKilograms() * WEIGHT_DECREASE_FACTOR);
-                if (getWeightInKilograms() < currentWeight * MIN_WEIGHT_FOR_SURVIVAL) {
+        synchronized (lock) {
+            currentCell.getCell().remove(this);
+            newCell.getCell().add(this);
+
+            List<Organism> organismsInCell = newCell.getCell();
+            if (organismsInCell.isEmpty()) {
+                setWeightInKilograms(getWeightInKilograms() * WEIGHT_DECREASE_FACTOR_HERBIVORE);
+                if (getWeightInKilograms() < initialWeight * MIN_WEIGHT_FOR_SURVIVAL_HERBIVORE) {
                     setAlive(false);
                 }
                 return;
             }
 
-            synchronized (getOrganismToAdd()) {
-                List<Organism> copy = new ArrayList<>(getOrganismToAdd());
-                for (Organism organism : copy) {
-                    if (organism.getClass().equals(this.getClass())) {
-                        reproduce();
-                    } else {
-                        synchronized (organism) {
-                            eat(organism);
-                        }
-                    }
+            for (Organism organism : organismsInCell) {
+                if (organism.getClass().equals(this.getClass())) {
+                    reproduce();
+                } else {
+                    eat(organism);
                 }
             }
-
-            synchronized (Menu.field) {
-                Menu.field[newX][newY].setCell(organismToAdd);
-            }
         }
+
+        IslandSimulation.setCellAt(currentLocation[0], currentLocation[1], currentCell);
+        IslandSimulation.setCellAt(newX, newY, newCell);
     }
+
 
     @Override
     public void reproduce() {
         int entityCount = 0;
-        synchronized (lock) {
-            for (Organism organism : this.getOrganismToAdd()) {
-                if (organism.getClass().equals(this.getClass())) {
-                    entityCount++;
-                }
+        Cell currentCell = IslandSimulation.getCellAt(findLocationOf(this)[0], findLocationOf(this)[1]);
+        for (Organism organism : currentCell.getCell()) {
+            if (organism.getClass().equals(this.getClass())) {
+                entityCount++;
             }
+        }
 
-            if (entityCount < getMaxAnimalsPerCell()) {
-                this.getOrganismToAdd().add(createNewHerbivore());
-            }
+        if (entityCount < getMaxAnimalsPerCell()) {
+            currentCell.getCell().add(createNewHerbivore());
         }
     }
 
     protected abstract Herbivore createNewHerbivore();
-
-    private void setWeightBasedOnFoodEaten(double foodEaten, double organismWeight) {
-        if (foodEaten >= organismWeight) {
-            setWeightInKilograms(currentWeight);
-        } else {
-            setWeightInKilograms(organismWeight);
-        }
-    }
-
-    public synchronized List<Organism> getOrganismToAdd() {
-        return organismToAdd;
-    }
-
-    public synchronized void setOrganismToAdd(List<Organism> organismToAdd) {
-        this.organismToAdd = organismToAdd;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -178,8 +168,7 @@ public abstract class Herbivore extends Animal {
 
         Herbivore herbivore = (Herbivore) o;
 
-        if (Double.compare(currentWeight, herbivore.currentWeight) != 0) return false;
-        if (!organismToAdd.equals(herbivore.organismToAdd)) return false;
+        if (Double.compare(initialWeight, herbivore.initialWeight) != 0) return false;
         return lock.equals(herbivore.lock);
     }
 
@@ -187,9 +176,8 @@ public abstract class Herbivore extends Animal {
     public int hashCode() {
         int result;
         long temp;
-        temp = Double.doubleToLongBits(currentWeight);
+        temp = Double.doubleToLongBits(initialWeight);
         result = (int) (temp ^ (temp >>> 32));
-        result = 31 * result + organismToAdd.hashCode();
         result = 31 * result + lock.hashCode();
         return result;
     }

@@ -1,7 +1,6 @@
 package app.island.entity.animal.predator;
 
 import app.island.annotations.Config;
-import app.island.entity.Organism;
 import app.island.entity.animal.herbivore.Caterpillar;
 import app.island.entity.animal.herbivore.Duck;
 import app.island.entity.animal.herbivore.Mouse;

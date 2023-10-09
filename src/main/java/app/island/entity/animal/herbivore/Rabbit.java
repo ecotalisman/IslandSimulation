@@ -1,7 +1,6 @@
 package app.island.entity.animal.herbivore;
 
 import app.island.annotations.Config;
-import app.island.entity.Organism;
 import app.island.entity.plants.Plants;
 import app.island.exceptions.IslandException;
 

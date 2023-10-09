@@ -6,7 +6,7 @@ import app.island.exceptions.IslandException;
 @Config(fileName = "config\\entities\\plants\\grass.yaml")
 public class Grass extends Plants implements Runnable {
     public Grass() {
-        super(200);
+        super(1d, 200);
         this.setName("Grass");
         this.setIcon("\uD83C\uDF31");
         this.setWeightInKilograms(1d);

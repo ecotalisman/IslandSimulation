@@ -1,18 +1,16 @@
 package app.island.entity.plants;
 
 import app.island.Menu.Cell;
-import app.island.Menu.Menu;
+import app.island.Menu.IslandSimulation;
 import app.island.entity.Organism;
-import app.island.entity.animal.Animal;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import static app.island.Constants.Constants.*;
-import static app.island.Menu.Menu.field;
+import static app.island.Menu.IslandSimulation.random;
 
 public abstract class Plants extends Organism implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -22,31 +20,25 @@ public abstract class Plants extends Organism implements Serializable {
     private int maxPlantsPerCell;
     private boolean isAlive = true;
     private final Object lock = new Object();
-    public Plants(int maxPlantsPerCell) {
-        this.maxPlantsPerCell = maxPlantsPerCell;
+    public Plants(double weightInKilograms, int maxPlantsPerCell) {
+        setWeightInKilograms(weightInKilograms);
+        setMaxPlantsPerCell(maxPlantsPerCell);
     }
 
-    public synchronized void reproduce() {
+    public void reproduce() {
         synchronized (lock) {
             for (int i = 0; i < NUM_ROWS; i++) {
                 for (int j = 0; j < NUM_COLUMNS; j++) {
-                    Cell cell = field[i][j];
-                    List<Organism> organismInCell = cell.getCell();
-                    int entityCount = 0;
-                    synchronized (organismInCell) {
-                        for (Organism organism : organismInCell) {
-                            if (organism.getClass().equals(this.getClass()) && ((Plants) organism).isAlive() ) {
-                                entityCount++;
-                            }
-                        }
-                    }
-                    if (entityCount < getMaxPlantsPerCell()) {
-                        List<Organism> newPlants = new ArrayList<>(organismInCell);
-                        newPlants.add(createNewPlants());
+                    Cell cell = IslandSimulation.getCellAt(i, j);
+                    List<Organism> organismInCell = new ArrayList<>(cell.getCell());
+                    long entityCount = organismInCell.stream()
+                            .filter(o -> o.getClass().equals(this.getClass()) && ((Plants) o).isAlive())
+                            .count();
 
-                        synchronized (Menu.field) {
-                            Menu.field[i][j].setCell(newPlants);
-                        }
+                    if (random.nextInt(100) < 10 && entityCount < getMaxPlantsPerCell()) {
+                        organismInCell.add(createNewPlants());
+                        cell.setCell(organismInCell);
+                        IslandSimulation.setCellAt(i, j, cell);
                     }
                 }
             }
@@ -54,7 +46,6 @@ public abstract class Plants extends Organism implements Serializable {
     }
 
     protected abstract Plants createNewPlants();
-
 
     public String getName() {
         return name;
@@ -106,8 +97,8 @@ public abstract class Plants extends Organism implements Serializable {
         if (Double.compare(weightInKilograms, plants.weightInKilograms) != 0) return false;
         if (maxPlantsPerCell != plants.maxPlantsPerCell) return false;
         if (isAlive != plants.isAlive) return false;
-        if (!name.equals(plants.name)) return false;
-        if (!icon.equals(plants.icon)) return false;
+        if (!Objects.equals(name, plants.name)) return false;
+        if (!Objects.equals(icon, plants.icon)) return false;
         return lock.equals(plants.lock);
     }
 
@@ -115,8 +106,8 @@ public abstract class Plants extends Organism implements Serializable {
     public int hashCode() {
         int result;
         long temp;
-        result = name.hashCode();
-        result = 31 * result + icon.hashCode();
+        result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (icon != null ? icon.hashCode() : 0);
         temp = Double.doubleToLongBits(weightInKilograms);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + maxPlantsPerCell;
