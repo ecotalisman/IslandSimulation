@@ -16,17 +16,11 @@ public abstract class Animal extends Organism implements Serializable {
         private Map<Class<? extends Organism>, Integer> predationProbability;
         private boolean isAlive = true;
 
-        public void eat(Organism organism) {
+        public abstract void eat(Organism organism);
 
-        }
+        public abstract void reproduce();
 
-        public void reproduce() {
-
-        }
-
-        public void chooseDirection() {
-
-        }
+        public abstract void chooseDirection();
 
         public String getName() {
                 return name;
