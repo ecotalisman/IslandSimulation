@@ -1,0 +1,22 @@
+name: Bear
+icon: 🐻
+weightInKilograms: 500
+maxAnimalsPerCell: 5
+maxMovementSpeedPerTurn: 2
+foodRequiredForFullSatiation: 80
+predationProbability:
+  Wolf: 0
+  Snake: 80
+  Fox: 0
+  Eagle: 0
+  Horse: 40
+  Deer: 80
+  Rabbit: 80
+  Mouse: 90
+  Goat: 70
+  Sheep: 70
+  Boar: 50
+  Buffalo: 20
+  Duck: 10
+  Caterpillar: 0
+  Plants: 0

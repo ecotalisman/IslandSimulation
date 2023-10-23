@@ -1,0 +1,26 @@
+name: Sheep
+icon: 🐑
+weightInKilograms: 70
+maxAnimalsPerCell: 140
+maxMovementSpeedPerTurn: 3
+foodRequiredForFullSatiation: 15
+predationProbability:
+  Wolf: 0
+  Snake: 0
+  Fox: 0
+  Bear: 0
+  Eagle: 0
+  Horse: 0
+  Deer: 0
+  Rabbit: 0
+  Mouse: 0
+  Goat: 0
+  Boar: 0
+  Buffalo: 0
+  Duck: 0
+  Caterpillar: 0
+  Plants: 100
+
+
+
+

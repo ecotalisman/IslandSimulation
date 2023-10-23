@@ -1,0 +1,4 @@
+name: Tree
+icon: 🌳
+weightInKilograms: 1
+maxPlantsPerCell: 200

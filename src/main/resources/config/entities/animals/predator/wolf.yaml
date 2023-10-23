@@ -1,0 +1,22 @@
+name: Wolf
+icon: 🐺
+weightInKilograms: 50
+maxAnimalsPerCell: 30
+maxMovementSpeedPerTurn: 3
+foodRequiredForFullSatiation: 8
+predationProbability:
+  Snake: 0
+  Fox: 0
+  Bear: 0
+  Eagle: 0
+  Horse: 10
+  Deer: 15
+  Rabbit: 60
+  Mouse: 80
+  Goat: 60
+  Sheep: 70
+  Boar: 15
+  Buffalo: 10
+  Duck: 40
+  Caterpillar: 0
+  Plants: 0

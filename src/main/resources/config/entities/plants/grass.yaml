@@ -1,0 +1,4 @@
+name: Grass
+icon: 🌱
+weightInKilograms: 1
+maxPlantsPerCell: 200
